@@ -1,6 +1,7 @@
 #include<Windows.h>
 #include<string>
 #include<vector>
+#include<map>
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -17,6 +18,7 @@ public:
 	{
 
 	}
+	Key() {};
 	void SetKeyActive() { isKeyActive = true; }
 	void SetKeyInactive() { isKeyActive = false; }
 	void DrawKey(HDC hdc)
@@ -62,16 +64,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	return msg.wParam;
 }
 
-void CreateKeyboard(std::vector<Key>& keyboard)
+void CreateKeyboard(std::map<int, Key>& keyboard)
 {
-	keyboard.push_back(Key(L"Escape", VK_ESCAPE, 75, 0, 0));
-	keyboard.push_back(Key(L"F1", VK_F1, 75, 1, 0));
+	keyboard.insert(std::pair<int, Key>(VK_ESCAPE, Key(L"Escape", VK_ESCAPE, 75, 0, 0)));
+	keyboard.insert(std::pair<int, Key>(VK_F1, Key(L"F1", VK_F1, 75, 1, 0)));
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
 	static int xClient, yClient, columnSize, rowSize; 
-	static std::vector<Key> keyboard;
+	static std::map<int, Key> keyboard;
 	HDC hdc;
 	PAINTSTRUCT ps;
 	switch (message)
@@ -87,32 +89,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 		return 0;
 	case WM_PAINT:
 		hdc = BeginPaint(hwnd, &ps);
-		keyboard[0].DrawKey(hdc);
-		keyboard[1].DrawKey(hdc);
+		for (auto k : keyboard)
+		{
+			k.second.DrawKey(hdc);
+		}
 		EndPaint(hwnd ,&ps);
 		return 0;
 	case WM_KEYDOWN:
-		switch (wparam)
-		{
-		case VK_ESCAPE:
-			keyboard[0].SetKeyActive();
-			break;
-		case VK_F1:
-			keyboard[1].SetKeyActive();
-			break;
-		}
+		keyboard[wparam].SetKeyActive();
 		InvalidateRect(hwnd, nullptr, TRUE);
 		return 0;
 	case WM_KEYUP:
-		switch (wparam)
-		{
-		case VK_ESCAPE:
-			keyboard[0].SetKeyInactive();
-			break;
-		case VK_F1:
-			keyboard[1].SetKeyInactive();
-			break;
-		}
+		keyboard[wparam].SetKeyInactive();
 		InvalidateRect(hwnd, nullptr, TRUE);
 		return 0;
 	case WM_CLOSE:
