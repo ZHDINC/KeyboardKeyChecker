@@ -10,11 +10,11 @@ class Key
 	std::wstring keyText;
 	int keyValue;
 	int width;
-	int column, row;
+	int column, row, offset;
 	bool isKeyActive = false;
 public:
-	Key(std::wstring keyText, int keyValue, int width, int column, int row)
-		: keyText{ keyText }, keyValue{ keyValue }, width{ width }, column{ column }, row{ row }
+	Key(std::wstring keyText, int keyValue, int width, int column, int row, int offset)
+		: keyText{ keyText }, keyValue{ keyValue }, width{ width }, column{ column }, row{ row }, offset{ offset }
 	{
 
 	}
@@ -27,8 +27,8 @@ public:
 		{
 			SetBkColor(hdc, RGB(75, 75, 150));
 		}
-		Rectangle(hdc, column * 100, row * 100, 100 + column * 100, 100 + row * 100);
-		TextOut(hdc, column * 100 + 20, row * 100 + 20, keyText.c_str(), keyText.size());
+		Rectangle(hdc, column * 100 + offset, row * 100, width + column * 100 + offset, 100 + row * 100);
+		TextOut(hdc, column * 100 + 20 + offset, row * 100 + 20, keyText.c_str(), keyText.size());
 		SetBkColor(hdc, RGB(255, 255, 255));
 		
 	}
@@ -66,8 +66,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 void CreateKeyboard(std::map<int, Key>& keyboard)
 {
-	keyboard.insert(std::pair<int, Key>(VK_ESCAPE, Key(L"Escape", VK_ESCAPE, 75, 0, 0)));
-	keyboard.insert(std::pair<int, Key>(VK_F1, Key(L"F1", VK_F1, 75, 1, 0)));
+	keyboard.insert(std::pair<int, Key>(VK_ESCAPE, Key(L"Escape", VK_ESCAPE, 100, 0, 0, 0)));
+	keyboard.insert(std::pair<int, Key>(VK_F1, Key(L"F1", VK_F1, 100, 1, 0, 0)));
+	keyboard.insert(std::pair<int, Key>(VK_TAB, Key(L"Tab", VK_TAB, 150, 0, 2, 0)));
+	keyboard.insert(std::pair<int, Key>(69, Key(L"E", 69, 100, 3, 2, 50)));
+	keyboard.insert(std::pair<int, Key>(VK_CAPITAL, Key(L"Caps Lock", VK_CAPITAL, 175, 0, 3, 0)));
+	keyboard.insert(std::pair<int, Key>(65, Key(L"A", 65, 100, 1, 3, 75)));
+	keyboard.insert(std::pair<int, Key>(68, Key(L"D", 68, 100, 3, 3, 75)));
+	keyboard.insert(std::pair<int, Key>(70, Key(L"F", 70, 100, 4, 3, 75)));
+	// keyboard.insert(std::pair<int, Key>(VK_LSHIFT, Key(L"Shift", VK_SHIFT, 200, 0, 4, 0)));
+	keyboard.insert(std::pair<int, Key>(67, Key(L"C", 67, 100, 3, 4, 100)));
+	keyboard.insert(std::pair<int, Key>(66, Key(L"B", 66, 100, 5, 4, 100)));
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
